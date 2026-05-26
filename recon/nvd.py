@@ -1,5 +1,14 @@
 import requests
 import time
+from deep_translator import GoogleTranslator
+
+def translate(text: str, lang: str) -> str:
+	if lang == "en":
+	   return text
+	try:
+	    return GoogleTranslator(source="en", target="es").translate(text[:500])
+	except Exception:
+	    return text	
 
 NVD_BASE_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 
@@ -65,6 +74,7 @@ def search_cves(service: str, version: str = "") -> list:
         results.append({
             "cve_id":      cve_id,
             "description": description,
+	    "description_es": translate(description, "es"),	
             "severity":    severity,
             "score":       score,
             "published":   published,

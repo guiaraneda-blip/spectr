@@ -50,7 +50,9 @@ def print_vulns(port, cves, lang):
         color = SEVERITY_COLOR.get(severity, "white")
         score = str(cve.get("score", 0.0))
         console.print("\n  [" + color + "]* " + cve["cve_id"] + "[/" + color + "]  [" + color + "]" + severity + " " + score + "[/" + color + "]  [dim]" + cve["published"] + "[/dim]")
-        console.print("  [white]" + cve["description"][:200] + "...[/white]")
+        desc = cve.get("description_es") or cve.get("description", "")
+        console.print("  [white]" + desc[:200] + "...[/white]")
+        
 
 def print_exploits(port, exploits, lang):
     if not exploits:
@@ -157,7 +159,9 @@ def save_report(hosts_data, lang, filename=None):
                 f.write("  Port: " + port["port"] + "/" + port["protocol"] + " -- " + port["service"] + " " + port["version"] + "\n")
                 for cve in port_data.get("cves", []):
                     f.write("    [" + cve["severity"] + "] " + cve["cve_id"] + " (Score: " + str(cve["score"]) + ")\n")
-                    f.write("    " + cve["description"][:150] + "...\n\n")
+                    desc = cve.get("description_es") or cve.get("description", "")
+                    f.write("    " + desc[:150] + "...\n")
+                    
                 for exp in port_data.get("exploits", []):
                     f.write("    EDB-" + exp["edb_id"] + ": " + exp["title"] + "\n")
                     if exp["msf"]:
