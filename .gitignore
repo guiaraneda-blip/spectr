@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+spectr_report_*.txt
+test_scan.txt
+.env
