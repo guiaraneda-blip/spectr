@@ -121,6 +121,7 @@ def main():
     parser.add_argument("--output",  default=None, help="Nombre custom del reporte")
     parser.add_argument("--rate",    default=1000, type=int, help="Rate masscan (default: 1000)")
     parser.add_argument("--keep",    action="store_true", help="Conservar archivos temporales")
+    parser.add_argument("--nmap-only", action="store_true", help="Saltar masscan, usar solo nmap (útil en WSL)")
     args = parser.parse_args()
 
     print(f"\n{BOLD}{CYAN}▓▒░ SPECTR RECON PIPELINE v1.2 ░▒▓{RESET}")
@@ -134,8 +135,12 @@ def main():
     log(f"Directorio temporal: {tmp_dir}", DIM)
 
     try:
-        run_masscan(args.target, args.rate, masscan_out)
-        hosts = parse_masscan_ports(masscan_out)
+        if args.nmap_only:
+            log("[1/3] Modo --nmap-only: saltando masscan...", DIM)
+            hosts = {args.target: list(map(str, range(1, 1025)))}
+        else:
+            run_masscan(args.target, args.rate, masscan_out)
+            hosts = parse_masscan_ports(masscan_out)
         log(f"Hosts con puertos abiertos: {len(hosts)}", GREEN)
         run_nmap(hosts, nmap_out)
         run_spectr(nmap_out, args.lang, args.report, args.output)
