@@ -4,6 +4,7 @@ from parser.nmap_parser import NmapParser
 from parser.masscan_parser import MasscanParser
 from recon.nvd import search_cves
 from recon.service_mapper import map_service
+from recon.default_creds import get_default_creds
 from recon.exploitdb import search_exploits
 from output.reporter import (
     console,
@@ -12,6 +13,7 @@ from output.reporter import (
     print_vulns,
     print_exploits,
     print_next_steps,
+    print_default_creds,
     print_report_hint,
     save_report,
 )
@@ -102,16 +104,19 @@ def main():
             # Buscar exploits
             console.print(f"[dim]  Searching exploits for {service} {version}...[/dim]")
             exploits = search_exploits(service, version)
+            default_creds = get_default_creds(service)
 
             # Mostrar resultados
             print_vulns(port, cves, lang)
             print_exploits(port, exploits, lang)
             print_next_steps(port, cves, lang)
+            print_default_creds(port, default_creds, lang)
 
             host_entry["ports"].append({
-                "port":     port,
-                "cves":     cves,
-                "exploits": exploits,
+                "port":          port,
+                "cves":          cves,
+                "exploits":      exploits,
+                "default_creds": default_creds,
             })
 
             console.print(f"[bold cyan]└{'─'*55}[/bold cyan]")

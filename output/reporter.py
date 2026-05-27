@@ -169,3 +169,13 @@ def save_report(hosts_data, lang, filename=None):
                 f.write("\n")
     console.print("\n[bold green]>> " + lang["report_saved"] + ": " + filename + "[/bold green]")
     return filename
+
+
+def print_default_creds(port, default_creds, lang):
+    """Muestra credenciales por defecto conocidas para el servicio."""
+    if not default_creds:
+        return
+    console.print(f"  [bold yellow]⚠ Default Credentials ({port['service']}):[/bold yellow]")
+    for user, passwd in default_creds:
+        passwd_display = passwd if passwd else "(empty)"
+        console.print(f"    [yellow]→ {user} / {passwd_display}[/yellow]")
