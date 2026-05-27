@@ -1,6 +1,7 @@
 import argparse
 import sys
 from parser.nmap_parser import NmapParser
+from parser.masscan_parser import MasscanParser
 from recon.nvd import search_cves
 from recon.service_mapper import map_service
 from recon.exploitdb import search_exploits
