@@ -2,6 +2,7 @@ import argparse
 import sys
 from parser.nmap_parser import NmapParser
 from recon.nvd import search_cves
+from recon.service_mapper import map_service
 from recon.exploitdb import search_exploits
 from output.reporter import (
     console,
@@ -77,6 +78,7 @@ def main():
 
         for port in host["ports"]:
             service = port["service"]
+            service = map_service(service)
             version = port["version"]
 
             console.print(
