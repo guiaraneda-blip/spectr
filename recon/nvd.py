@@ -29,6 +29,10 @@ def search_cves(service: str, version: str = "") -> list:
     Retorna lista de CVEs relevantes.
     Incluye retry logic con backoff exponencial.
     """
+    SKIP_SERVICES = {"tcpwrapped", "unknown", "filtered", "closed", ""}
+    if not service or service.lower() in SKIP_SERVICES:
+        return []
+
     query = f"{service} {version}".strip()
 
     params = {
