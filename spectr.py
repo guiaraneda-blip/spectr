@@ -53,6 +53,11 @@ def main():
         help="Custom report filename (default: spectr_report_<timestamp>.txt)"
     )
 
+    parser.add_argument(
+        "--masscan",
+        action="store_true",
+        help="Parse masscan output instead of nmap"
+    )
     args = parser.parse_args()
     lang = load_lang(args.lang)
 
@@ -61,8 +66,11 @@ def main():
 
     # Parsear nmap output
     console.print(f"\n[dim]{lang['loading']}[/dim]")
-    nmap = NmapParser(args.file)
-    hosts = nmap.parse()
+    if args.masscan:
+        parser_tool = MasscanParser(args.file)
+    else:
+        parser_tool = NmapParser(args.file)
+    hosts = parser_tool.parse()
 
     if not hosts:
         console.print(f"[bold red]{lang['no_hosts']}[/bold red]")
