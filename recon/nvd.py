@@ -20,37 +20,50 @@ SEVERITY_COLOR = {
     "NONE":     "white",
 }
 
+MAX_RETRIES = 3
+RETRY_DELAY = 2  # segundos base, se duplica cada intento
+
 def search_cves(service: str, version: str = "") -> list:
     """
     Busca CVEs en NVD por servicio y versión.
     Retorna lista de CVEs relevantes.
+    Incluye retry logic con backoff exponencial.
     """
-    query = service
-    if version:
-        query = f"{service} {version}"
+    query = f"{service} {version}".strip()
 
     params = {
         "keywordSearch":  query,
         "resultsPerPage": 10,
     }
 
-    try:
-        response = requests.get(
-            NVD_BASE_URL,
-            params=params,
-            timeout=10,
-            headers={"User-Agent": "SPECTR/1.0"}
-        )
-        response.raise_for_status()
+    response = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            response = requests.get(
+                NVD_BASE_URL,
+                params=params,
+                timeout=10,
+                headers={"User-Agent": "SPECTR/1.0"}
+            )
+            response.raise_for_status()
+            break  # éxito, salimos del loop
 
-    except requests.exceptions.Timeout:
-        print("[ERROR] NVD API timeout.")
-        return []
-    except requests.exceptions.RequestException as e:
-        print(f"[ERROR] NVD API request failed: {e}")
-        return []
+        except requests.exceptions.Timeout:
+            print(f"[ERROR] NVD timeout (intento {attempt}/{MAX_RETRIES})")
+        except requests.exceptions.RequestException as e:
+            print(f"[ERROR] NVD request failed (intento {attempt}/{MAX_RETRIES}): {e}")
+
+        if attempt < MAX_RETRIES:
+            wait = RETRY_DELAY * (2 ** (attempt - 1))  # 2s, 4s, 8s
+            print(f"[INFO] Reintentando en {wait}s...")
+            time.sleep(wait)
+        else:
+            print("[ERROR] NVD no disponible tras varios intentos.")
+            return []
 
     data = response.json()
+    
+   
     vulnerabilities = data.get("vulnerabilities", [])
 
     results = []
